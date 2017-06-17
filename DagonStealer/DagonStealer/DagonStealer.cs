@@ -13,6 +13,7 @@ namespace DagonStealer
         public static Hero Me;
 
         private static Item Dagon;
+        private static int Damage;
 
         public static Menu Menu;
         private static bool loaded;
@@ -20,21 +21,14 @@ namespace DagonStealer
         #endregion
 
         #region OnLoad
-        public void OnLoad()
+        public static void OnLoad()
         {
-            try
-            {
-                loaded = false;
-                Dagon = null;
+            loaded = false;
+            Dagon = null;
 
-                MenuGenerator.Load();
+            MenuGenerator.Load();
 
-                Game.OnUpdate += OnUpdate;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("An error occurred: '{0}'", e);
-            }
+            Game.OnUpdate += OnUpdate;
         }
 
         #endregion
@@ -50,7 +44,6 @@ namespace DagonStealer
                 {
                     return;
                 }
-                Dagon = Me.FindItem("item_dagon");
                 loaded = true;
             }
 
@@ -66,18 +59,43 @@ namespace DagonStealer
                 return;
             }
 
-            if (Dagon == null)
+            Hero target = TargetSelector.ClosestToMouse(Me, 250);
+
+            if (target == null)
+                return;
+
+            for (int i = 1; Dagon == null; i++)
             {
-                Dagon = Me.FindItem("item_dagon");
+                switch (i)
+                {
+                    case 1:
+                        Dagon = Me.FindItem("item_dagon");
+                        Damage = 400;
+                        break;
+                    case 2:
+                        Dagon = Me.FindItem("item_dagon_2");
+                        Damage = 500;
+                        break;
+                    case 3:
+                        Dagon = Me.FindItem("item_dagon_3");
+                        Damage = 600;
+                        break;
+                    case 4:
+                        Dagon = Me.FindItem("item_dagon_4");
+                        Damage = 700;
+                        break;
+                    case 5:
+                        Dagon = Me.FindItem("item_dagon_5");
+                        Damage = 800;
+                        break;
+                    default:
+                        return;
+                }
+
             }
 
-            if (Menu.Item("cast.quick.enable").GetValue<bool>())
-            {
-                if (Utils.SleepCheck("dagonCheck"))
-                {
-                    DagonCast(Me.ClosestToMouseTarget());
-                }
-            }
+            if (Menu.Item("cast.quick.enable").GetValue<bool>() && Dagon.ManaCost <= Me.Mana)
+                DagonCast(target);
         }
 
         #endregion
@@ -86,19 +104,22 @@ namespace DagonStealer
 
         public static void DagonCast(Hero targetHero)
         {
-            if (Dagon != null && Dagon.Cooldown == 0)
+            if (Menu.Item("health.trigger.enable").GetValue<bool>() &&
+                targetHero.Health > Menu.Item("health.trigger.health").GetValue<Slider>().Value)
+                return;
+
+            if (Dagon != null && Dagon.Cooldown == 0.0f)
             {
                 var distance =
                     Math.Sqrt(
                         Math.Pow(targetHero.Position.X - Me.Position.X, 2)
-                        + Math.Pow(targetHero.Position.X - Me.Position.Y, 2));
+                        + Math.Pow(targetHero.Position.Y - Me.Position.Y, 2));
 
                 if (distance > 0)
                 {
-                    if (distance < Dagon.CastRange)
+                    if (distance <= Dagon.CastRange && (float)Damage - (float)Damage * targetHero.MagicDamageResist >= targetHero.Health)
                     {
                         Dagon.UseAbility(targetHero);
-                        Utils.Sleep(250, "dagonCheck");
                     }
                 }
             }

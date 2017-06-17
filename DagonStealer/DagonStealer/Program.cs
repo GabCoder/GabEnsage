@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DagonStealer
 {
@@ -10,6 +6,14 @@ namespace DagonStealer
     {
         static void Main(string[] args)
         {
+            try
+            {
+                DagonStealer.OnLoad();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("An error occurred: '{0}'", e);
+            }
         }
     }
 }

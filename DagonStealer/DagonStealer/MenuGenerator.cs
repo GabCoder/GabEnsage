@@ -1,5 +1,4 @@
-﻿using Ensage.Common;
-using Ensage.Common.Menu;
+﻿using Ensage.Common.Menu;
 
 namespace DagonStealer
 {
@@ -10,8 +9,8 @@ namespace DagonStealer
             DagonStealer.Menu = new Menu("Dagon Stealer", "dagon_stealer", true);
 
             DagonStealer.Menu.AddItem(new MenuItem("cast.quick.enable", "Enable Dagon Stealer").SetValue(true));
-
-            DagonStealer.Menu.AddItem(new MenuItem("seperator", ""));
+            DagonStealer.Menu.AddItem(new MenuItem("health.trigger.enable", "Enable Health-Cast").SetValue(false));
+            DagonStealer.Menu.AddItem(new MenuItem("health.trigger.health", "Maximum health [Health-Cast]").SetValue(new Slider(150, 1, 1000)));
             DagonStealer.Menu.AddItem(new MenuItem("by.gabCoder", "Made by GabCoder"));
 
             DagonStealer.Menu.AddToMainMenu();
