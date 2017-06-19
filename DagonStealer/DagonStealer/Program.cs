@@ -6,14 +6,7 @@ namespace DagonStealer
     {
         static void Main(string[] args)
         {
-            try
-            {
-                DagonStealer.OnLoad();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("An error occurred: '{0}'", e);
-            }
+            DagonStealer.OnLoad();
         }
     }
 }
