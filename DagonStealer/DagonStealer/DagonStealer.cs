@@ -18,6 +18,8 @@ namespace DagonStealer
         public static Menu Menu;
         private static bool loaded;
 
+        private static int manaNeeded;
+
         #endregion
 
         #region OnLoad
@@ -41,11 +43,13 @@ namespace DagonStealer
             {
                 Me = ObjectManager.LocalHero;
                 if (!Game.IsInGame || Me == null)
-                {
                     return;
-                }
+
                 loaded = true;
             }
+
+            if (!Menu.Item("health.trigger.enable").GetValue<bool>())
+                return;
 
             if (!Game.IsInGame || Me == null)
             {
@@ -55,9 +59,7 @@ namespace DagonStealer
             }
 
             if (Game.IsPaused)
-            {
                 return;
-            }
 
             Hero target = TargetSelector.ClosestToMouse(Me, 250);
 
@@ -94,7 +96,15 @@ namespace DagonStealer
 
             }
 
-            if (Menu.Item("cast.quick.enable").GetValue<bool>() && Dagon.ManaCost <= Me.Mana)
+            manaNeeded = (int)Dagon.ManaCost;
+
+            if (Me.HasModifier("Rune Doubledamage"))
+                Damage *= 2;
+
+            if (Me.HasModifier("Rune Arcane"))
+                manaNeeded -= (int)(manaNeeded * 0.4f);
+
+            if (manaNeeded <= Me.Mana)
                 DagonCast(target);
         }
 
@@ -104,24 +114,18 @@ namespace DagonStealer
 
         public static void DagonCast(Hero targetHero)
         {
-            if (Menu.Item("health.trigger.enable").GetValue<bool>() &&
-                targetHero.Health > Menu.Item("health.trigger.health").GetValue<Slider>().Value)
+            if (targetHero.Health > Menu.Item("health.trigger.health").GetValue<Slider>().Value)
                 return;
 
-            if (Dagon != null && Dagon.Cooldown == 0.0f)
+            if (Dagon.Cooldown == 0.0f)
             {
                 var distance =
                     Math.Sqrt(
                         Math.Pow(targetHero.Position.X - Me.Position.X, 2)
                         + Math.Pow(targetHero.Position.Y - Me.Position.Y, 2));
 
-                if (distance > 0)
-                {
-                    if (distance <= Dagon.CastRange && (float)Damage - (float)Damage * targetHero.MagicDamageResist >= targetHero.Health)
-                    {
-                        Dagon.UseAbility(targetHero);
-                    }
-                }
+                if (distance > 0 && distance <= Dagon.CastRange && (float)Damage - (float)Damage * targetHero.MagicDamageResist >= targetHero.Health)
+                    Dagon.UseAbility(targetHero);
             }
         }
 
