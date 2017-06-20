@@ -48,7 +48,7 @@ namespace DagonStealer
                 loaded = true;
             }
 
-            if (!Menu.Item("health.trigger.enable").GetValue<bool>())
+            if (!Menu.Item("cast.quick.enable").GetValue<bool>())
                 return;
 
             if (!Game.IsInGame || Me == null)
@@ -61,12 +61,13 @@ namespace DagonStealer
             if (Game.IsPaused)
                 return;
 
-            Hero target = TargetSelector.ClosestToMouse(Me, 250);
+            Hero target = TargetSelector.ClosestToMouse(Me, 550);
 
             if (target == null)
                 return;
 
-            for (int i = 1; Dagon == null; i++)
+            @dagonInit:
+            for (int i = 1; Dagon == null && i <= 5; i++)
             {
                 switch (i)
                 {
@@ -90,13 +91,13 @@ namespace DagonStealer
                         Dagon = Me.FindItem("item_dagon_5");
                         Damage = 800;
                         break;
-                    default:
-                        return;
                 }
-
             }
 
-            manaNeeded = (int)Dagon.ManaCost;
+            if (Dagon == null)
+                return;
+
+            manaNeeded = (int) Dagon.ManaCost;
 
             if (Me.HasModifier("Rune Doubledamage"))
                 Damage *= 2;
@@ -104,8 +105,12 @@ namespace DagonStealer
             if (Me.HasModifier("Rune Arcane"))
                 manaNeeded -= (int)(manaNeeded * 0.4f);
 
+            Console.WriteLine("Damage: " + Damage + "Mana needed: " + manaNeeded);
+
             if (manaNeeded <= Me.Mana)
                 DagonCast(target);
+
+            Dagon = null;
         }
 
         #endregion
@@ -114,7 +119,7 @@ namespace DagonStealer
 
         public static void DagonCast(Hero targetHero)
         {
-            if (targetHero.Health > Menu.Item("health.trigger.health").GetValue<Slider>().Value)
+            if (targetHero.Health > Menu.Item("health.trigger.health").GetValue<Slider>().Value && Menu.Item("health.trigger.enable").GetValue<bool>())
                 return;
 
             if (Dagon.Cooldown == 0.0f)
