@@ -105,8 +105,6 @@ namespace DagonStealer
             if (Me.HasModifier("Rune Arcane"))
                 manaNeeded -= (int)(manaNeeded * 0.4f);
 
-            Console.WriteLine("Damage: " + Damage + "Mana needed: " + manaNeeded);
-
             if (manaNeeded <= Me.Mana)
                 DagonCast(target);
 
