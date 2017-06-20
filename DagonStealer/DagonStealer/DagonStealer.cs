@@ -19,6 +19,7 @@ namespace DagonStealer
         private static bool loaded;
 
         private static int manaNeeded;
+        private static bool Sleeped = false;
 
         #endregion
 
@@ -51,6 +52,9 @@ namespace DagonStealer
             if (!Menu.Item("cast.quick.enable").GetValue<bool>())
                 return;
 
+            if (Me.IsInvisible() && !Menu.Item("cast.quick.invise.enable").GetValue<bool>())
+                return;
+
             if (!Game.IsInGame || Me == null)
             {
                 Dagon = null;
@@ -66,7 +70,6 @@ namespace DagonStealer
             if (target == null)
                 return;
 
-            @dagonInit:
             for (int i = 1; Dagon == null && i <= 5; i++)
             {
                 switch (i)
@@ -104,6 +107,23 @@ namespace DagonStealer
 
             if (Me.HasModifier("Rune Arcane"))
                 manaNeeded -= (int)(manaNeeded * 0.4f);
+
+            /* Delay realisation */
+            if (Menu.Item("cast.delay").GetValue<Slider>().Value > 0)
+            {
+                if (!Sleeped && Utils.SleepCheck("dagonDelay"))
+                {
+                    Utils.Sleep(Menu.Item("cast.delay").GetValue<Slider>().Value, "dagonDelay");
+                    Sleeped = true;
+                    return;
+                }
+                if (Sleeped && !Utils.SleepCheck("dagonDelay"))
+                    return;
+                if (Sleeped && Utils.SleepCheck("dagonDelay"))
+                    Sleeped = false;
+            } else if (Sleeped)
+                Sleeped = false;
+            /* END */
 
             if (manaNeeded <= Me.Mana)
                 DagonCast(target);
